@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import chainlit as cl
 from agents import Agent, Runner,AsyncOpenAI,OpenAIChatCompletionsModel
 
 load_dotenv()
@@ -22,12 +23,19 @@ agent = Agent(
       asking to the user and flirting with them""",
     model = model
 )
-user_input = input("Enter your Message here:(type 'exit' to quit) ")
+# user_input = input("Enter your Message here:(type 'exit' to quit) ")
 
-if user_input == "exit":
-    print("Exiting the program...")
-else:
-    while user_input.lower() != "exit":
-        result = Runner.run_sync(agent, user_input)
-        print(result.final_output)
-        user_input = input("Enter your Message here:(type 'exit' to quit) ")
+# if user_input == "exit":
+#     print("Exiting the program...")
+# else:
+#     while user_input.lower() != "exit":
+#         result = Runner.run_sync(agent, user_input)
+#         print(result.final_output)
+#         user_input = input("Enter your Message here:(type 'exit' to quit) ")
+
+@cl.on_message
+async def handle_message(message: cl.Message):
+    """Handles user messages in Chainlit."""
+    user_input = message.content  # Get user input
+    result = await Runner.run(agent, user_input)  # Run the agent asynchronously
+    await cl.Message(content=result.final_output).send()  # Send the response
